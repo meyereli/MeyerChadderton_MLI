@@ -1,0 +1,1010 @@
+%Code to generate figures for Meyer & Chadderton 2025
+%(https://doi.org/10.1101/2025.08.12.669821)
+%Script tested in Matlab 2018b!
+
+%load all data files connected to this project in the workspace!
+
+%%
+%reassemble cell arrays of data
+for ianimal = 1:12
+    ianimal_s = string(ianimal);
+    vname = strcat('animal', ianimal_s);
+    neuract_touchlocs{1,ianimal} = eval(vname); 
+    
+end
+
+clear animal1 animal2 animal3 animal4 animal5 animal6 animal7 animal8 animal9 animal10 animal11 animal12
+
+for ianimal = 1:12
+    ianimal_s = string(ianimal);
+    vname = strcat('neuract_animal', ianimal_s);
+    neuract{1,ianimal} = eval(vname);   
+    
+end
+
+clear neuract_animal1 neuract_animal2 neuract_animal3 neuract_animal4 neuract_animal5 neuract_animal6 neuract_animal7 neuract_animal8 neuract_animal9 neuract_animal10 neuract_animal11 neuract_animal2
+clear ianimal ianimal_s vname
+
+%%
+
+% Figure 4
+
+for ianimal =6    
+    curr_data = neuract_touchlocs{1,ianimal}(:,10);
+    curr_data = curr_data(~cellfun('isempty', curr_data));
+    curr_data_mat = permute(curr_data, [2 3 1]);
+    curr_data_mat = cell2mat(curr_data_mat);
+    curr_data_mean = nanmean(curr_data_mat, 3);
+    sort_vec = nanmean(curr_data_mean(:, 300:end),2);    
+    curr_data_mean = [curr_data_mean sort_vec];
+    curr_data_sort = sortrows(curr_data_mean, size(curr_data_mean,2));    
+    figure;     
+    imagesc(curr_data_sort); 
+    colmap = generate_colours(1,1,1.18, 0.98);
+    colormap(colmap);
+    caxis([0.98 1.18]);
+    colorbar; 
+    xline(300);
+    xlim([300-93 300+93]);    
+    set(gcf,'renderer','painters');   
+   
+end
+title('Figure 4B Biii   touch trials');
+
+ax = gca;
+curr_xlim = ax.XLim(2);
+curr_xlim_1 = ax.XLim(1);
+new_xlim = curr_xlim + (31 - rem(curr_xlim,31));
+
+x_ticks_new = curr_xlim_1:31:new_xlim;
+new_labels = [-3; -2; -1; 0; 1; 2; 3];
+
+xticks(x_ticks_new);
+xticklabels(new_labels);
+xlabel('Time from touch (s)');
+ylabel('Cell #');
+c = colorbar;
+c.Label.String = ('dF/F');
+
+%%
+
+ 
+for ianimal = 6
+    curr_data = neuract_touchlocs{1,ianimal}(:,8);
+    curr_data = curr_data(~cellfun('isempty', curr_data));
+    curr_data_mat = permute(curr_data, [2 3 1]);
+    curr_data_mat = cell2mat(curr_data_mat);
+    curr_data_mean = nanmean(curr_data_mat, 3);     
+    curr_data_mean = [curr_data_mean sort_vec];
+    curr_data_sort = sortrows(curr_data_mean, size(curr_data_mean,2));     
+    figure; 
+    
+    imagesc(curr_data_sort); 
+   % colmap = generate_colours(1,1,1.18, 0.98);
+    colormap(colmap);    
+    caxis([0.98 1.18]);
+    colorbar; 
+    title(string(ianimal));
+    xline(52);
+
+    set(gcf,'renderer','painters');
+    
+    
+    
+   
+end
+title('Figure 4B Bii   touch trials');
+
+ax = gca;
+curr_xlim = ax.XLim(2);
+curr_xlim_1 = ax.XLim(1);
+new_xlim = curr_xlim + (31 - rem(curr_xlim,31));
+
+x_ticks_new = curr_xlim_1-10:31:new_xlim-10;
+new_labels = [-2; -1; 0; 1; 2; 3; 4];
+
+xticks(x_ticks_new);
+xticklabels(new_labels);
+xlabel('Time from touch (s)');
+ylabel('Cell #');
+c = colorbar;
+c.Label.String = ('dF/F');
+
+
+
+%%
+
+BL_fw = 31;
+BL_touch = 300; 
+curr_win =45;
+
+%%
+
+for ianimal = 1:size(neuract_touchlocs, 2)
+     curr_whisk = bouts_by_vid(:,ianimal);
+     curr_touch = neuract_touchlocs{1,ianimal}(:,10);  
+     curr_movtouch = neuract_touchlocs{1,ianimal}(:,8);
+     curr_whisk = curr_whisk(~cellfun('isempty', curr_whisk));
+     curr_whisk = cell2mat(permute(curr_whisk,[2,3,1]));
+     curr_whisk_mean = mean(curr_whisk,3);
+     whisk_resps_mean(:,ianimal) = mean(mean(curr_whisk_mean(:,BL_fw+1:BL_fw+curr_win),2) - mean(curr_whisk_mean(:,1:BL_fw),2)); %only calc difference for last 2 seconds of bout
+     whisk_resps(ianimal,:) = mean(curr_whisk_mean,1) - mean(mean(curr_whisk_mean(:, 1:BL_fw),1)); 
+     all_trials_whisk{1,ianimal} = curr_whisk_mean;
+   
+     
+     
+     curr_touch = curr_touch(~cellfun('isempty', curr_touch));
+     curr_movtouch = curr_movtouch(~cellfun('isempty', curr_movtouch));
+     curr_touch = cell2mat(permute(curr_touch,[2,3,1]));
+     curr_movtouch = cell2mat(permute(curr_movtouch, [2,3,1]));
+     curr_touch_mean = mean(curr_touch,3);
+     curr_movtouch_mean = mean(curr_movtouch,3);
+     touch_resps_mean(:,ianimal) = mean(mean(curr_touch_mean(:,BL_touch+1:BL_touch+curr_win),2) - mean(curr_touch_mean(:,1:BL_touch),2)); 
+     touch_resps(ianimal,:) = mean(curr_touch_mean,1) - mean(mean(curr_touch_mean(:, 1:31),1));
+     movtouch_resps_mean(:,ianimal) = mean(mean(curr_movtouch_mean(:,BL_fw+1:BL_fw+curr_win),2) - mean(curr_movtouch(:,1:BL_fw),2));
+     movtouch_resps(ianimal,:) = mean(curr_movtouch_mean,1) - mean(mean(curr_movtouch_mean(:, 1:BL_fw),1)); 
+     all_trials_touch{1,ianimal} = curr_touch_mean;
+     all_trials_movtouch{1,ianimal} = curr_movtouch_mean;
+  
+     
+      movtouch_resps_end_mean(:,ianimal) = mean(mean(curr_movtouch_mean(:,155:end),2) - mean(curr_movtouch(:,1:BL_fw),2));
+      whisk_resps_end_mean(:,ianimal) = mean(mean(curr_whisk_mean(:,155:end),2) - mean(curr_whisk_mean(:,1:BL_fw),2));
+end
+
+
+
+%%
+
+all_trials_whisk = all_trials_whisk(:);
+all_trials_touch = all_trials_touch(:);
+all_trials_movtouch = all_trials_movtouch(:);
+all_whisk = cell2mat(all_trials_whisk);
+all_touch = cell2mat(all_trials_touch);
+all_movtouch = cell2mat(all_trials_movtouch);
+
+%%
+%Figure 2
+
+curr_data = bouts_by_animal{1,6}; 
+BL_fw = 36;
+
+sorting_vect = mean(curr_data(:,BL_fw : end),2);
+[~,sorting_order] = sortrows(sorting_vect);
+sorted_whiskact = curr_data(sorting_order,:);
+figure
+imagesc(sorted_whiskact);
+curr_max = max(max(curr_data));
+curr_min = min(min(curr_data));
+[colmap] = generate_colours(1, 1, 1.13, 0.98);
+colormap(colmap);
+caxis([0.98 1.18]);
+colorbar;
+xline(BL_fw, '--k');
+set_any_xaxis_to_standard_time;
+set(gca,'FontSize',12);
+ylabel('Cell #');
+set(gcf,'renderer','painters');
+
+sort_vecs_fw = cellfun(@(x) (mean(x(:,BL_fw : end),2)), bouts_by_animal, 'UniformOutput',0);
+
+whisking_bouts = get_any_field_anywhere_AB(AB, 'iwhisk1_res', 0);
+whisking_onsets = get_any_field_anywhere_AB(AB, 'whisk1res_onsets', 0);
+ca_bouts = get_any_field_from_AB(AB, 'clean_rois', 0);
+ 
+ curr_bouts = whisking_bouts(1:2,3);
+ curr_onsets = whisking_onsets(1:2,3);
+ curr_ca = ca_bouts{1,3}(1:2,1);
+
+ for ianimal = 1:12
+ curr_bouts = whisking_bouts(1:2,ianimal);
+ curr_onsets = whisking_onsets(1:2,ianimal);
+ curr_ca = ca_bouts{1,ianimal}(1:2,1);
+ fw_BL = 31;
+ for ivids = 1:size(curr_bouts,1)
+     bouts_use = curr_bouts{ivids,1}';
+     onsets_use = curr_onsets{ivids,1}; 
+     ca_use = curr_ca{ivids,1};
+     whisk_temp = [];
+     ca_temp = [];
+     std_temp = [];
+     for iwhisk = 1:size(onsets_use,1) %iwhisk = 13 used in Figure!!
+         onset_temp = onsets_use(iwhisk,1);
+         whisk_temp(iwhisk,:) = bouts_use(1, onset_temp-fw_BL:onset_temp+94);
+         
+         
+        
+     end
+    
+     animal_whisks(ivids,:, ianimal) = mean(whisk_temp,1);
+     
+     
+ end
+ 
+ 
+ end
+
+ test = squeeze(mean(animal_whisks,1))'; 
+ errBar = std(test, 1)/sqrt(14);
+ figure;
+ subplot(2,1,1)
+ hold on
+ x = 1:length(errBar);
+ shadedErrorBar(x, mean(test,1), errBar, 'k'); 
+ set_any_xaxis_to_standard_time;
+ylabel('whisker movement (deg)');
+title('Figure 2B');
+ hold on;
+ subplot(2,1,2)
+y = nanmean(all_whisk(:,1:126),1); 
+errBar = nanstd(all_whisk(:,1:126), 1)/sqrt(size(all_whisk,1)); 
+H=shadedErrorBar(x, y, errBar, 'r');
+set_any_xaxis_to_standard_time;
+ ylabel('dF/F')
+ 
+ figure;
+hold on;
+xaxis_vec_large = ones(1,328);
+y1 = nanmean(all_whisk(:, 62:120),2) - nanmean(all_whisk(:, 1:BL_fw),2);
+violin(y1,'x',[1 0 3], 'medc','');
+ylim([-0.04 0.2]);
+ylabel('Evoked Ca2+ amp. (dF/F');
+title('Figure 2C');
+yline(0);
+
+%%
+%Figure 4C, D
+figure;
+
+subplot(2,1,1)
+title('Figure 4C');
+hold on;
+x = 1:size(all_whisk,2); 
+y = nanmean(all_whisk,1); 
+errBar = nanstd(all_whisk, 1)/sqrt(size(all_whisk,1)); 
+H=shadedErrorBar(x, y, errBar, 'r');
+y = nanmean(all_movtouch,1); 
+errBar = nanstd(all_movtouch, 1)/sqrt(size(all_movtouch,1)); 
+H=shadedErrorBar(x, y, errBar, 'b');
+set(gca,'XColor', 'none')
+ylabel('dF/F');
+xline(31);
+subplot(2,1,2)
+hold on;
+y = nanmean(all_touch(:, BL_touch - 31 : BL_touch+154),1); 
+errBar = nanstd(all_touch(:, BL_touch - 31 : BL_touch+154), 1)/sqrt(size(all_touch,1)); 
+H=shadedErrorBar(x, y, errBar, 'b');
+xline(31);
+ax = gca;
+curr_xlim = ax.XLim(2);
+curr_xlim_1 = ax.XLim(1);
+new_xlim = curr_xlim + (31 - rem(curr_xlim,31));
+x_ticks_new = curr_xlim_1:31:new_xlim;
+new_labels = floor(linspace(1, new_xlim/31, new_xlim/31));
+xticks(x_ticks_new);
+xticklabels(new_labels);
+xlabel('Time (s)');
+ylabel('dF/F');
+ylim([0.99, 1.04]);
+
+
+
+figure;
+hold on;
+xaxis_vec_large = ones(1,328);
+y1 = nanmean(all_whisk(:, 62:120),2) - nanmean(all_whisk(:, 1:BL_fw),2);
+violin(y1,'x',[1 0 3], 'medc','');
+
+y3 = nanmean(all_touch(:,BL_touch+31:BL_touch+120),2) - nanmean(all_touch(:, 1:BL_touch),2);
+violin(y3,'x',[2 0 3],'facecolor','b', 'medc','');
+ylim([-0.04 0.2]);
+ylabel('Evoked Ca2+ amp. (dF/F');
+title('Figure 4D');
+yline(0);
+[ p1, h1, stats1] = signrank(y1, y3);
+txt = ['p = ', string(p1)];
+text(0.1, 0.18, txt);
+
+%%
+%Figure 4E
+%from neuract_touchlocs
+%column 7: Ca aligned to whisk onset per neuron
+%column 9: Ca aligned to touch onset per neuron
+BL_fw = 31;
+BL_touch = 300; 
+BL_puff = 93;
+
+for ianimal = 1:size(neuract_touchlocs, 2)
+    for ivids = 1:size(neuract_touchlocs{1,ianimal})
+        curr_data = cell2mat(neuract_touchlocs{1,ianimal}(ivids,7));
+        curr_data_touch = cell2mat(neuract_touchlocs{1,ianimal}(ivids,9));
+        curr_data_mean = mean(curr_data,3);
+        latency_to_peak_mean = [];
+        for irow = 1:size(curr_data_mean, 1)
+             try                
+               data_use = curr_data_mean(irow, BL_fw:BL_fw+45); 
+               data_use_mean = movmean(data_use, 5);
+               upper_statelevel = max(data_use_mean); 
+               lower_statelevel = min(data_use_mean); 
+               latency_to_peak_mean(irow,:) = risetime(data_use_mean, 'StateLevels',[lower_statelevel upper_statelevel]); 
+             catch
+                latency_to_peak_mean(irow,:) = nan;
+                latency_to_peak_mean(irow,:) = nan;
+                latency_to_peak_mean(irow,:) = nan; 
+             end 
+        end
+
+        latency_to_peak_time_mean = latency_to_peak_mean/31;  
+        latency_byneuron_temp(:,ivids) = latency_to_peak_time_mean(:,1);
+        
+        if isempty(curr_data_touch)
+            latency_byneuron_temp_touch(:,ivids) = nan;
+        else
+        curr_data_mean_touch = nanmean(curr_data_touch,3);
+        latency_to_peak_mean_touch = [];
+            for irow = 1:size(curr_data_mean_touch, 1)
+                try
+                    data_use = curr_data_mean_touch(irow, BL_touch:BL_touch+45); 
+                    data_use_mean = movmean(data_use, 5);
+                    upper_statelevel = max(data_use_mean); 
+                    lower_statelevel = min(data_use_mean); 
+                    latency_to_peak_mean_touch(irow,:) = risetime(data_use_mean, 'StateLevels',[lower_statelevel upper_statelevel]);
+                catch
+                    latency_to_peak_mean_touch(irow,:) = nan;
+                    latency_to_peak_mean_touch(irow,:) = nan;
+                    latency_to_peak_mean_touch(irow,:) = nan; 
+                end 
+            end
+           
+
+            latency_to_peak_time_mean_touch = latency_to_peak_mean_touch/31;
+            if ~isempty (latency_to_peak_time_mean_touch)
+                latency_byneuron_temp_touch(:,ivids) = latency_to_peak_time_mean_touch(:,1);
+            else
+                latency_byneuron_temp_touch(:,ivids) = nan;
+            end
+          end
+        
+        
+    end    
+    latency_byneuron{1,ianimal} = nanmean(latency_byneuron_temp,2);
+    latency_byneuron{2,ianimal} = nanstd(latency_byneuron_temp,[],2)/sqrt(size(latency_byneuron_temp,1));
+    latency_byneuron_temp = [];
+    
+    latency_byneuron_touch{1,ianimal} = nanmean(latency_byneuron_temp_touch,2);
+    latency_byneuron_touch{2,ianimal} = nanstd(latency_byneuron_temp_touch,[],2)/sqrt(size(latency_byneuron_temp_touch,1));
+    latency_byneuron_temp_touch = [];
+end
+
+
+
+%%
+figure; 
+idx_nans = isnan(latency_byneuron_touch{1,6});
+
+curr_data = latency_byneuron_touch{1,6};
+curr_data(idx_nans) = [];
+yvalues_size = size(curr_data,1);
+yvalues = 1:yvalues_size;
+curr_data_sort = sortrows(curr_data);
+plot(curr_data_sort, yvalues, '>');
+set(gca, 'ydir', 'reverse');
+hold on;
+
+curr_data = latency_byneuron{1,6};
+curr_data(idx_nans) = [];
+curr_data_sort = sortrows(curr_data);
+plot(curr_data_sort, yvalues, '>');
+set(gca, 'ydir', 'reverse');
+hold on;
+title('Figure 4E');
+xlabel('Rise time (s)');
+ylabel('Cell #');
+
+figure;
+temp = latency_byneuron(1,:)';
+latency_whisk = cell2mat(temp);
+hold on;
+yline(0);
+errBar = nanstd(latency_whisk)/sqrt(length(latency_whisk));
+errorbar(1, nanmean(latency_whisk), errBar, errBar, 'k');
+violin(latency_whisk,'x',[1 0 4], 'medc','');
+
+temp = latency_byneuron_touch(1,:)';
+latency_touch = cell2mat(temp);
+hold on;
+errBar = nanstd(latency_touch)/sqrt(length(latency_touch));
+errorbar(2, nanmean(latency_touch), errBar, errBar, 'k');
+violin(latency_touch,'x',[2 0 4],'facecolor','b', 'medc','');
+ylabel('Rise time (s)');
+title('Figure 4E');
+[pw2, hw2, stats2] = signrank(latency_whisk, latency_touch);
+txt = ['p = ', string(pw2)];
+text(3, 0.18, txt);
+
+%%
+%Figure 4F
+
+
+BL_fw = 31;
+BL_touch = 300; 
+
+figure; 
+hold on;
+for ianimal = 1:size(sort_vecs_fw,2)
+    curr_touch = neuract_touchlocs{1,ianimal}(:,10);
+    curr_touch = curr_touch(~cellfun('isempty', curr_touch));
+    curr_touch_av = cell2mat(reshape(curr_touch,1,1,[]));
+    curr_touch_av = mean(curr_touch_av,3);
+    
+    curr_sortvec = sort_vecs_fw{1,ianimal};
+    [~,sorting_order] = sortrows(curr_sortvec);
+    touch_sortvec = mean(curr_touch_av(:, BL_touch:end),2);
+    [~,sorting_order_t] = sortrows(touch_sortvec);
+    fw_sorting{1,ianimal} = sorting_order;
+    t_sorting{1,ianimal} = sorting_order_t;
+end
+
+%%
+    curr_data = neuract_touchlocs{1,6}(:,10);
+    curr_data = curr_data(~cellfun('isempty', curr_data));
+    curr_data_mat = permute(curr_data, [2 3 1]);
+    curr_data_mat = cell2mat(curr_data_mat);
+    curr_data_mean = nanmean(curr_data_mat, 3);
+    sort_vec = sort_vecs_fw{1,6};
+    
+    curr_data_mean = [curr_data_mean sort_vec];
+    curr_data_sort = sortrows(curr_data_mean, size(curr_data_mean,2)); 
+    
+    figure; 
+    
+    imagesc(curr_data_sort); 
+
+ colmap = generate_colours(1,1,1.18, 0.98);
+    colormap(colmap);
+    caxis([0.98 1.18]);
+    colorbar; 
+    title('Figure 4F');
+    xline(300);
+    xlim([300-93 300+93]);
+    
+    set(gcf,'renderer','painters');
+    ax = gca;
+curr_xlim = ax.XLim(2);
+curr_xlim_1 = ax.XLim(1);
+new_xlim = curr_xlim + (31 - rem(curr_xlim,31));
+
+x_ticks_new = curr_xlim_1:31:new_xlim;
+new_labels = [-3; -2; -1; 0; 1; 2; 3];
+
+xticks(x_ticks_new);
+xticklabels(new_labels);
+xlabel('Time from touch (s)');
+ylabel('Cell #');
+c = colorbar;
+c.Label.String = ('dF/F');
+
+%%
+%Count MLis that don't change rank (nonchangers), change rank to negative
+%(nchangers) or positive (pchangers). 
+%plot delta ranking
+delta_rank_t = cellfun(@(x,y) (x - y), fw_sorting, t_sorting, 'UniformOutput', 0);
+delta_rank_t_sort = cellfun(@(x) (sortrows(x)), delta_rank_t, 'UniformOutput', 0);
+zero_indices_t = cellfun(@(x) (find(x==0)), delta_rank_t_sort,'UniformOutput', 0);
+%count how many neurons have a delta of 0. 
+nonchangers_t = cellfun(@(x) (size(x(x ==0),1)/size(x,1)*100), delta_rank_t_sort);
+
+%find mean difference in values of delta rank
+nchangers_t = cellfun(@(x) (size(x(x <0),1)/size(x,1)*100), delta_rank_t_sort);
+pchangers_t = cellfun(@(x) (size(x(x >0),1)/size(x,1)*100), delta_rank_t_sort);
+
+mean_diff_touch = cellfun(@(x) (mean(diff(x))), delta_rank_t_sort);
+
+%%
+%split whisker data in half to do baseline variability
+
+BL_fw = 31;
+for ianimal = 1:size(bouts_by_vid,2)
+    curr_data = bouts_by_vid(:,ianimal);
+    curr_data = curr_data(~cellfun(@isempty, curr_data));
+    if size(curr_data,1) == 2
+       curr_mat = cat(3, curr_data{1,1}, curr_data{2,1}); 
+    elseif size(curr_data,1) == 3
+        curr_mat = cat(3, curr_data{1,1}, curr_data{2,1}, curr_data{3,1});
+    elseif size(curr_data,1) == 1
+        curr_mat = cell2mat(curr_data);
+    end
+    
+    trial_split = floor(size(curr_mat,3)/2);
+    curr_sortvec = sort_vecs_fw{1,ianimal};
+    [~, sort_order_fw] = sortrows(curr_sortvec);
+    curr_mat_2 = curr_mat(:,:,trial_split+1:end);
+    curr_mat_av2 = mean(curr_mat_2,3);
+    curr_mat_av2_tosort = mean(curr_mat_av2(:, BL_fw:end),2);
+    [~, sortvec_2] = sortrows(curr_mat_av2_tosort);
+    delta_rank_w{:,ianimal} = sort_order_fw - sortvec_2;
+    clear sortvec_1
+    clear sortvec_2
+    clear curr_mat_1
+    clear curr_mat_2
+end
+
+%%
+%Calculate AUC
+for ianimal = 1:size(delta_rank_t,2)    
+    curr_x = 1:1:size(delta_rank_t_sort{1,ianimal},1);
+    results_auc_t_cum{1, ianimal} = trapz(curr_x, abs(delta_rank_t_sort{1,ianimal}))/length(curr_x)^2;    
+end
+for ianimal = 1:size(delta_rank_w,2)    
+    curr_x = 1:1:size(delta_rank_w_sort{1,ianimal});
+    results_auc_w_cum{1,ianimal} = trapz(curr_x, abs(delta_rank_w_sort{1,ianimal}))/length(curr_x)^2;
+end
+%%
+cum_average_w = cell2mat(results_auc_w_cum(:));
+cum_average_t = cell2mat(results_auc_t_cum(:));
+figure;
+hold on;
+bar(1, mean(cum_average_w));
+errBar = std(cum_average_w)/sqrt(12);
+errorbar(1, mean(cum_average_w), errBar, errBar, 'k');
+bar(2, mean(cum_average_t));
+errBar = std(cum_average_t)/sqrt(12);
+errorbar(2, mean(cum_average_t), errBar, errBar, 'k');
+
+
+%%
+for ianimal = 1:12
+    for ireps = 1:10000
+        temp_fw = fw_sorting{1,ianimal}(randperm(length(fw_sorting{1,ianimal})));
+        temp_t = t_sorting{1,ianimal}(randperm(length(t_sorting{1,ianimal})));
+        shuffled_temp = temp_fw - temp_t;
+        shuffled_sorted = sortrows(shuffled_temp);
+        curr_x = 1:1:length(shuffled_sorted);
+         shuffled_auc_temps_t(ireps,1) = trapz(curr_x, abs(shuffled_sorted))/length(curr_x)^2;
+    end
+   results_auc_t_shuffled(1,ianimal) = mean(shuffled_auc_temps_t); 
+end
+
+
+figure;
+hold on;
+
+title('Figure 4H');
+bar(2, mean(cum_average_t));
+errBar = std(cum_average_t)/sqrt(12);
+errorbar(2, mean(cum_average_t), errBar, errBar, 'k');
+x1 = ones(12,1)+1;
+scatter(x1, cum_average_t, 'ok');
+bar(1, mean(cum_average_w));
+errBar = std(cum_average_w)/sqrt(12);
+errorbar(1, mean(cum_average_w), errBar, errBar, 'k');
+x1 = ones(12,1);
+scatter(x1, cum_average_w, 'ok');
+bar(3, mean(results_auc_t_shuffled), 'FaceColor', [.7 .7 .7]);
+errBar = std(results_auc_t_shuffled)/sqrt(12);
+errorbar(3, mean(results_auc_t_shuffled), errBar, errBar, 'k');
+x1 = ones(12,1)+2;
+scatter(x1, results_auc_t_shuffled, 'ok');
+ylim([0 0.4]);
+
+
+[aucp_t, auch_t, aucstats_t] = signrank(cum_average_t, results_auc_t_shuffled);
+[aucp_wt, auch_wt, aucstats_wt] = signrank(cum_average_t, cum_average_w);
+txt =  ['p = ', string(aucp_t)];
+text(2.5, 0.38, txt);
+txt =  ['p = ', string(aucp_wt)];
+text(1.5, 0.38, txt);
+ylabel('Rank change (abs AUC)');
+
+
+%%
+ianimal = 6;
+shuffle_t_toplot = t_sorting{1,ianimal}(randperm(length(t_sorting{1,ianimal})));
+shuffle_w_toplot = fw_sorting{1,ianimal}(randperm(length(fw_sorting{1,ianimal})));
+shuf_t_sort_plot = shuffle_w_toplot - shuffle_t_toplot; 
+shuf_t_sort_plot = sortrows(shuf_t_sort_plot);
+curr_data = bouts_by_vid(:,ianimal);
+curr_mat = cat(3, curr_data{1,1}, curr_data{2,1}); 
+trial_split = floor(size(curr_mat,3)/2);
+curr_sortvec = sort_vecs_fw{1,ianimal};
+[~, sort_order_fw] = sortrows(curr_sortvec);
+curr_mat_2 = curr_mat(:,:,1:trial_split);
+curr_mat_av2 = mean(curr_mat_2,3);
+curr_mat_av2_tosort = mean(curr_mat_av2(:, BL_fw:end),2);
+[~, sortvec_2] = sortrows(curr_mat_av2_tosort);    
+delta_rank_toplot = sort_order_fw - sortvec_2;
+delta_rank_toplot = sortrows(delta_rank_toplot);
+
+whisk_sortvec = sort_order_fw;
+touch_sortvec = t_sorting{1,ianimal};
+confusion_mat_t = zeros(length(whisk_sortvec), length(whisk_sortvec));
+
+for icell = 1:length(whisk_sortvec)
+    curr_x = whisk_sortvec(icell);
+    curr_y = touch_sortvec(icell);
+    
+    confusion_mat_t(curr_x,curr_y) = 1;
+    
+end
+figure;
+imagesc(confusion_mat_t);
+set(gca,'YDir','normal')
+title('Figure 5G - whisk touch');
+myrgbvalue = hex2rgb('#1F7DA9');
+myrgbvalue2 = hex2rgb('#F9F9F9');
+mapcolortouse = [myrgbvalue2; myrgbvalue];
+colormap(mapcolortouse);
+set(gcf,'renderer','painters');
+xlabel('Rank whisk');
+ylabel('Rank touch');
+%whisk_whisk
+whisk1_sortvec = sort_order_fw; 
+whisk2_sortvec = sortvec_2;
+
+confusion_mat = zeros(length(whisk1_sortvec), length(whisk1_sortvec));
+
+for icell = 1:length(whisk1_sortvec)
+    curr_x = whisk1_sortvec(icell);
+    curr_y = whisk2_sortvec(icell);
+    
+    confusion_mat(curr_x,curr_y) = 1;
+    
+end
+
+figure
+imagesc(confusion_mat);
+myrgbvalue = hex2rgb('#EC8323');
+myrgbvalue2 = hex2rgb('#F9F9F9');
+mapcolortouse = [myrgbvalue2; myrgbvalue];
+colormap(mapcolortouse);
+
+set(gca,'YDir','normal')
+title('Figure 4G - whisk whisk');
+set(gcf,'renderer','painters');
+xlabel('Rank whisk');
+ylabel('Rank whisk');
+
+%shuffle
+confusion_mat_s = zeros(length(whisk_sortvec), length(whisk_sortvec));
+
+for icell = 1:length(whisk_sortvec)
+    curr_x = shuffle_w_toplot(icell);
+    curr_y = shuffle_t_toplot(icell);
+    
+    confusion_mat_s(curr_x,curr_y) = 1;
+    
+end
+figure
+imagesc(confusion_mat_s);
+set(gca,'YDir','normal')
+title('Figure 4G - shuffle');
+myrgbvalue = hex2rgb('#93908F');
+myrgbvalue2 = hex2rgb('#F9F9F9');
+mapcolortouse = [myrgbvalue2; myrgbvalue];
+colormap(mapcolortouse);
+xlabel('Rank shuffle');
+ylabel('Rank shuffle');
+set(gcf,'renderer','painters');
+
+%%
+%mean and sem of number of MLIs per animal
+
+number_of_neurons = cellfun(@(x) size(x,1), bouts_by_animal);
+mean_number_of_neurons = mean(number_of_neurons);
+sem_number_of_neurons = std(number_of_neurons)/sqrt(12);
+
+%%
+
+%Figure 3
+
+%transfer_func_analysis_final_noclusters
+%predict_responses_from_transferfunc
+clearvars -except neuract_touchlocs neuract bouts_by_vid bouts_by_animal touch_events whisker_traces whisking_onsets
+%%
+win_sec = 20;
+Fs = 31;
+time_window = Fs*win_sec;
+
+
+
+    for ianimal = 1:size(neuract, 2)
+
+        curr_nopole = neuract{1,ianimal}(:,1);
+        curr_nopole = curr_nopole(~cellfun('isempty', curr_nopole));
+        curr_nopolewhisk = whisker_traces(1:size(curr_nopole,1),ianimal);
+        mat_nopole = mean(cell2mat(curr_nopole'))';
+        mat_nopolewhisk = cell2mat(curr_nopolewhisk);
+        mat_nopolewhisk = smoothdata(mat_nopolewhisk, 'Gaussian', 10);
+
+        ll = size(mat_nopolewhisk,1);
+        ll_tobe = ceil(ll/time_window)*time_window;
+
+        curr_whisk = [mat_nopolewhisk; zeros(1,ll_tobe-ll)'];
+
+        curr_whisk_use{1, ianimal} = reshape(curr_whisk, time_window, []);
+
+        curr_ca = [mat_nopole; zeros(1,ll_tobe-ll)'];
+        curr_ca_use{1, ianimal} = reshape(curr_ca, time_window, []);
+
+        curr_pole1 = neuract{1,ianimal}(:,2);
+        curr_pole1 = curr_pole1(~cellfun('isempty', curr_pole1));
+        curr_pole1whisk = whisker_traces(size(curr_nopole,1)+1:size(curr_pole1,1)+size(curr_nopole,1),ianimal);
+        mat_pole1 = mean(cell2mat(curr_pole1'))';
+        mat_pole1whisk = cell2mat(curr_pole1whisk);
+        mat_pole1whisk = smoothdata(mat_pole1whisk, 'Gaussian', 10);
+
+        ll = size(mat_pole1whisk,1);
+        ll_tobe = ceil(ll/time_window)*time_window;
+        curr_whisk = [];
+        curr_whisk = [mat_pole1whisk; zeros(1,ll_tobe-ll)'];
+        curr_whisk_use{2, ianimal} = reshape(curr_whisk, time_window, []);
+        curr_ca = [mat_pole1; zeros(1,ll_tobe-ll)'];
+        curr_ca_use{2, ianimal} = reshape(curr_ca, time_window, []);
+
+        curr_polepuff = neuract{1,ianimal}(:,3);
+        curr_polepuff = curr_polepuff(~cellfun('isempty', curr_polepuff));
+        curr_polepuffwhisk = whisker_traces(size(curr_nopole,1)+size(curr_pole1,1) +1:end,ianimal);
+        mat_polepuff = mean(cell2mat(curr_polepuff'))';
+        mat_polepuffwhisk = cell2mat(curr_polepuffwhisk);
+        mat_polepuffwhisk = smoothdata(mat_polepuffwhisk, 'Gaussian', 10);
+
+
+        ll = size(mat_polepuffwhisk,1);
+        ll_tobe = ceil(ll/time_window)*time_window;
+        curr_whisk = [];
+        curr_whisk = [mat_polepuffwhisk; zeros(1,ll_tobe-ll)'];
+        curr_whisk_use{3, ianimal} = reshape(curr_whisk, time_window, []);
+        curr_ca = [mat_polepuff; zeros(1,ll_tobe-ll)'];
+        curr_ca_use{3, ianimal} = reshape(curr_ca, time_window, []);
+
+        for icond = 1:3
+            [tf_objects] = calc_the_transfer_function(curr_whisk_use{icond, ianimal}, curr_ca_use{icond, ianimal}, Fs, 'whisker');
+
+            tf_objects_all{icond, ianimal} = tf_objects;
+        end
+
+
+
+    end
+
+
+%%
+per_cluster = 0;
+[model_results_1] = predict_responses_from_transferfunc(curr_whisk_use, curr_ca_use, tf_objects_all, 'whisker', per_cluster, 0, time_window);
+
+%%
+%randomly resample trace 
+
+for ianimal = 1:size(curr_whisk_use, 2)
+    for icond = 1:size(curr_whisk_use,1)
+        curr_data = curr_ca_use{icond,ianimal}; 
+        curr_data(curr_data == 0) = mean(mean(curr_data));
+        curr_data = curr_data(:);        
+   %     curr_data_shift = circshift(curr_data, shift_win*Fs);
+        curr_data_shift = curr_data; 
+         curr_data_shift = curr_data_shift(randperm(length(curr_data_shift)));
+        
+        curr_ca_use_shift{icond, ianimal} = reshape(curr_data_shift, time_window, []);
+       
+    end
+end
+
+
+%%
+per_cluster = 0;
+[model_results_1_shift] = predict_responses_from_transferfunc(curr_whisk_use, curr_ca_use_shift, tf_objects_all, 'whisker', per_cluster, 0, time_window);
+
+
+%%
+
+ model_comp_conc_1 = model_results_1;
+ model_comp_conc_shift = model_results_1_shift;
+
+
+for ianimal = 1:12
+    %data organized by column 
+   
+        
+        for icond = 1:3
+             conc_model_1{icond,ianimal} = reshape(model_comp_conc_1{icond, ianimal}{1,1}, 1, []);
+            conc_model_shift{icond,ianimal} = reshape(model_comp_conc_shift{icond, ianimal}{1,1}, 1, []);    
+             curr_whisk_conc{icond,ianimal} = reshape(curr_whisk_use{icond,ianimal}, 1, []); %
+            
+            [R1, P1] = corrcoef(conc_model_1{icond,ianimal}, curr_whisk_conc{icond,ianimal});        
+            corr_results_conc{icond,ianimal}{1,1} = R1(1,2);           
+            corr_results_conc{icond,ianimal}{1,2} = P1(1,2);
+            
+            [Rshift, Pshift] = corrcoef(conc_model_shift{icond,ianimal}, curr_whisk_conc{icond,ianimal});        
+            corr_results_conc_shift{icond,ianimal}{1,1} = Rshift(1,2);           
+            corr_results_conc_shift{icond,ianimal}{1,2} = Pshift(1,2);
+            
+        end
+    
+    
+    
+end
+
+%%
+
+shifted_results = corr_results_conc_shift(1,:);
+normal_results = corr_results_conc(1,:);
+shifted_mats = cellfun(@(x) x(1), shifted_results); 
+normal_mats = cellfun(@(x) x(1), normal_results);
+shifted_mats = cell2mat(shifted_mats);
+normal_mats = cell2mat(normal_mats); 
+
+
+[p, h, stats] = signrank(normal_mats, shifted_mats); 
+
+
+figure;
+hold on;
+
+
+bar(2, mean(shifted_mats));
+errBar = std(shifted_mats)/sqrt(12);
+errorbar(2, mean(shifted_mats), errBar, errBar, 'k');
+x1 = ones(12,1)+1;
+scatter(x1, shifted_mats, 'k');
+
+bar(1, mean(normal_mats));
+errBar = std(normal_mats)/sqrt(12);
+errorbar(1, mean(normal_mats), errBar, errBar, 'k');
+x1 = ones(12,1);
+scatter(x1, normal_mats, 'k');
+
+mat_for_plot= [normal_mats; shifted_mats];
+for ianimal = 1:12
+    plot(mat_for_plot(:,ianimal), 'k');
+end
+title('Figure 3C');
+ylabel('Corr. coefficient');
+
+
+
+%% 
+%Figure 5
+
+animal_names = fieldnames(AB);
+whisking_onsets = get_any_field_anywhere_AB(AB, 'whisk1res_onsets', 0);
+touch_events = get_any_field_from_AB(AB, 'touch_locations', 0);
+ win = 31;
+for ianimal = 1:size(conc_model_1, 2) %animal used in example: 13
+    for icond = 1:2
+        curr_reconstr1 = conc_model_1{icond, ianimal};
+        
+        curr_whisk = curr_whisk_conc{icond, ianimal};
+        if ianimal == 12
+        figure; 
+        hold on;
+        plot(curr_whisk, 'k');
+        plot(curr_reconstr1, 'm'); 
+        end
+        if icond == 2
+           
+           curr_touches = neuract_touchlocs{1,ianimal}(:,2);
+           if size(curr_touches,1)> 3
+               curr_touches(4:end,:) = [];
+           end
+           trm = rem(size(curr_reconstr1,2), 10000);
+           trm1 = size(curr_reconstr1,2) - trm; 
+           curr_reconstr1(:,trm1+1:trm1+trm) = [];
+           
+           curr_whisk(:,trm1+1:trm1+trm) = [];
+           temp_touches = [];
+           for ivids = 1:size(curr_touches, 1)
+                if isempty(curr_touches{ivids, 1})
+                    continue
+                else
+                    temp_touches{ivids,1} = curr_touches{ivids,1} + (ivids-1)*10000; 
+                end
+           end
+           all_touches = cell2mat(temp_touches');
+           scatter(all_touches, ones(size(all_touches, 2),1)); 
+           
+           for itouch = 1:size(all_touches, 2)
+               touch_now = floor(all_touches(1,itouch));
+           %window before touch
+                curr_BL1 = curr_reconstr1(1,touch_now-win:touch_now-1);
+                
+                curr_whisk_BL = curr_whisk(1,touch_now-win:touch_now-1);
+                [r1, p1] = corrcoef(curr_BL1, curr_whisk_BL); 
+                
+                temp_BL1_corr(itouch,1) = r1(2,1);
+               
+                
+           %window after touch
+                curr_T1 = curr_reconstr1(1,touch_now:touch_now+win);
+                
+                curr_whisk_T = curr_whisk(1,touch_now:touch_now+win);
+                [r1, p1] = corrcoef(curr_T1, curr_whisk_T); 
+               
+                temp_T1_corr(itouch,1) = r1(2,1);
+                
+           end
+           
+           all_touch_correfs1(1,ianimal) = mean(temp_BL1_corr);
+           all_touch_correfs1(2,ianimal) = std(temp_BL1_corr)/sqrt(size(temp_BL1_corr,1));
+           
+           all_touch_correfs1(3,ianimal) = mean(temp_T1_corr);
+           all_touch_correfs1(4,ianimal) = std(temp_T1_corr)/sqrt(size(temp_T1_corr,1));
+           
+      
+        elseif icond == 1
+            
+            
+            curr_onsets = whisking_onsets(:,ianimal); 
+            trm = rem(size(curr_reconstr1,2), 10000);
+            trm1 = size(curr_reconstr1,2) - trm; 
+            curr_reconstr1(:,trm1+1:trm1+trm) = [];
+           
+            curr_whisk(:,trm1+1:trm1+trm) = [];
+            
+            nvids = size(curr_reconstr1,2) / 10000; 
+            curr_onsets(nvids+1:end,:) = [];
+            temp_whisks = [];
+            for ivids = 1:nvids
+                temp_whisks{ivids,1} = curr_onsets{ivids,1} + (ivids-1)*10000;             
+            end
+            
+            all_whisks = cell2mat(temp_whisks)';
+            temp_BL1_corr = [];
+                
+                temp_T1_corr = [];
+               
+                for iwhisk = 1:size(all_whisks, 2)
+                   whisk_now = floor(all_whisks(1,iwhisk));
+               %window before whisk
+                    curr_BL1 = curr_reconstr1(1,whisk_now-win:whisk_now-1);
+                    
+                    curr_whisk_BL = curr_whisk(1,whisk_now-win:whisk_now-1);
+                    [r1, p1] = corrcoef(curr_BL1, curr_whisk_BL); 
+                    
+
+                    temp_BL1_corr(iwhisk,1) = r1(2,1);
+                   
+
+               %window after whisk
+                    curr_T1 = curr_reconstr1(1,whisk_now:whisk_now+win);
+                    
+                    curr_whisk_T = curr_whisk(1,whisk_now:whisk_now+win);
+                    [r1, p1] = corrcoef(curr_T1, curr_whisk_T); 
+                    
+                    temp_T1_corr(iwhisk,1) = r1(2,1);
+                   
+                end
+                all_whisk_correfs1(1,ianimal) = mean(temp_BL1_corr);
+                all_whisk_correfs1(2,ianimal) = std(temp_BL1_corr)/sqrt(size(temp_BL1_corr,1));
+                
+                all_whisk_correfs1(3,ianimal) = mean(temp_T1_corr);
+                all_whisk_correfs1(4,ianimal) = std(temp_T1_corr)/sqrt(size(temp_T1_corr,1));
+                
+           
+        end    
+    end
+end
+
+
+
+
+%%
+figure;
+hold on;
+bar(2,nanmean(all_touch_correfs1(3,:))); 
+errall = nanstd(all_touch_correfs1(3,:))/sqrt(size(all_touch_correfs1,2));
+errorbar(2,nanmean(all_touch_correfs1(3,:)),errall,errall, 'k');1
+
+bar(1,nanmean(all_whisk_correfs1(3,:))); 
+errall = nanstd(all_whisk_correfs1(3,:))/sqrt(size(all_whisk_correfs1,2));
+errorbar(1,nanmean(all_whisk_correfs1(3,:)),errall,errall, 'k');
+
+[p1, t1, stats1] = signrank(all_whisk_correfs1(3,:), all_touch_correfs1(3,:));
+
+ylabel('Instantaenous corr.coeff.');
+title('Figure 5C');
+
+%%
+clearvars -except neuract_touchlocs neuract bouts_by_vid bouts_by_animal touch_events whisker_traces whisking_onsets
+
+
+
+
