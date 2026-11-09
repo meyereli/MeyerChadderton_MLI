@@ -1,8 +1,10 @@
 # MeyerChadderton_MLI
+Code for Meyer & Chadderton 2026:
+Masterfile: meyerchadderton_mli_revision1.m
 
+Code/bioRiv:
 Code and data to generate figures for Meyer & Chadderton, 2025
-
-https://doi.org/10.1101/2025.08.12.669821
+https://doi.org/10.1101/2025.08.12.669821 
 
 Script tested in Matlab 2018b
 
