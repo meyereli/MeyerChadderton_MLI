@@ -1,5 +1,5 @@
 # MeyerChadderton_MLI
-Code for Meyer & Chadderton 2026:
+Code and data for Meyer & Chadderton 2026:
 Masterfile: meyerchadderton_mli_revision1.m
 
 Code/bioRiv:
@@ -11,7 +11,4 @@ Script tested in Matlab 2018b
 Violin graphs: Hoffmann H, 2015: violin.m - Simple violin plot using matlab default kernel
  density estimation. INRES (University of Bonn), Katzenburgweg 5, 53115 Germany.
  hhoffmann@uni-bonn.de
- 
 
-Load all data files connected to this project in the workspace!
-Have all m-files associated with this project on the Matlab path!
